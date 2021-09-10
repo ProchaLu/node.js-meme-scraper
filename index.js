@@ -46,7 +46,7 @@ const getMemes = async () => {
   bar.stop(); // porgress bar stop
 };
 
-// create your own meme
+// create your own meme if the user input is there
 if (process.argv[2] && process.argv[3] && process.argv[4]) {
   const memeName = process.argv[4];
   const memeUpText = process.argv[2];
