@@ -1,3 +1,78 @@
-// start to get the site
+// import node modules and npm packages
+import fs from 'node:fs';
+import cheerio from 'cheerio';
+import cliProgress from 'cli-progress';
+import fetch from 'node-fetch';
 
-const memeSite = 'https://memegen-link-examples-upleveled.netlify.app/';
+const memeWebsite = 'https://memegen-link-examples-upleveled.netlify.app/';
+const memeArray = [];
+
+// create folder
+fs.mkdir('./memes', { recursive: true }, (err) => {
+  if (err) {
+    return console.error(err);
+  }
+});
+// create progress bar
+const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+
+// Fetch HTML from the Website
+const getMemes = async () => {
+  const response = await fetch(memeWebsite);
+  const body = await response.text();
+  const $ = cheerio.load(body);
+  // put the first 10 images in an array
+  $('img').each((i, img) => {
+    if (i < 10) {
+      memeArray.push(img.attribs.src);
+      // attribs cheerio function, help from https://npmdoc.github.io/node-npmdoc-cheerio/build/apidoc.html
+    }
+  });
+  // fetch the 10 images and put it in the memes folder
+  // start progress bar
+  bar.start(10, 0);
+  for (let i = 0; i < memeArray.length; i++) {
+    const getImages = async () => {
+      const imageResponse = await fetch(memeArray[i]);
+      const content = await imageResponse.buffer();
+      fs.writeFile(`./memes/${i}.jpg`, content, () => {
+        console.log(`
+        Picture ${i + 1} download complete`);
+      });
+    };
+    getImages(); // run the async await function until i = 9
+    bar.increment(1); // increment progress bar by 1
+  }
+  bar.stop(); // porgress bar stop
+};
+
+// create your own meme
+if (process.argv[2] && process.argv[3] && process.argv[4]) {
+  const memeName = process.argv[4];
+  const memeUpText = process.argv[2];
+  const memeDownText = process.argv[3];
+  // create costum meme folder
+  fs.mkdir('./costum-memes', { recursive: true }, (err) => {
+    if (err) {
+      return console.error(err);
+    }
+  });
+  // fetch your own meme
+  const getOwnMeme = async () => {
+    const ownImageResponse = await fetch(
+      `https://api.memegen.link/images/${memeName}/${memeUpText}/${memeDownText}.jpg`,
+    );
+    const ownMeme = await ownImageResponse.buffer();
+    // write own meme into folder
+    fs.writeFile(
+      `./costum-memes/${memeName}${memeUpText}${memeDownText}.jpg`,
+      ownMeme,
+      () => {
+        console.log(`Costum ${memeName}meme download complete`);
+      },
+    );
+  };
+  getOwnMeme();
+} else {
+  getMemes();
+}
