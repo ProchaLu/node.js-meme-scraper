@@ -51,8 +51,8 @@ if (process.argv[2] && process.argv[3] && process.argv[4]) {
   const memeName = process.argv[4];
   const memeUpText = process.argv[2];
   const memeDownText = process.argv[3];
-  // create costum meme folder
-  fs.mkdir('./costum-memes', { recursive: true }, (err) => {
+  // create custom meme folder
+  fs.mkdir('./custom-memes', { recursive: true }, (err) => {
     if (err) {
       return console.error(err);
     }
@@ -65,10 +65,10 @@ if (process.argv[2] && process.argv[3] && process.argv[4]) {
     const ownMeme = await ownImageResponse.buffer();
     // write own meme into folder
     fs.writeFile(
-      `./costum-memes/${memeName}${memeUpText}${memeDownText}.jpg`,
+      `./custom-memes/${memeName}${memeUpText}${memeDownText}.jpg`,
       ownMeme,
       () => {
-        console.log(`Costum ${memeName}meme download complete`);
+        console.log(`Custom ${memeName}meme download complete`);
       },
     );
   };
